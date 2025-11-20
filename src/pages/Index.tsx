@@ -4,15 +4,14 @@ import { ProgressBar } from "@/components/ProgressBar";
 import { NavigationDots } from "@/components/NavigationDots";
 import { DuaGenerator } from "@/components/DuaGenerator";
 import { namesOfAllah } from "@/data/names";
-import { ChevronLeft, ChevronRight, Heart } from "lucide-react";
+import { ChevronLeft, ChevronRight, Heart, ArrowLeft, List } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 const Index = () => {
-  const [searchParams] = useSearchParams();
-  const nameParam = searchParams.get("name");
-  const [currentIndex, setCurrentIndex] = useState(nameParam ? parseInt(nameParam) : 0);
+  const { id } = useParams();
+  const [currentIndex, setCurrentIndex] = useState(id ? parseInt(id) : 0);
   const [favorites, setFavorites] = useState<number[]>([]);
   const [isDhikrMode, setIsDhikrMode] = useState(false);
   const [touchStart, setTouchStart] = useState<number | null>(null);
@@ -23,19 +22,18 @@ const Index = () => {
   const currentName = namesOfAllah[currentIndex];
   const minSwipeDistance = 50;
 
-  // Load favorites and progress from localStorage
+  // Load favorites and update index from URL
   useEffect(() => {
     const savedFavorites = localStorage.getItem("favorites");
-    const savedProgress = localStorage.getItem("currentName");
     
     if (savedFavorites) {
       setFavorites(JSON.parse(savedFavorites));
     }
     
-    if (savedProgress) {
-      setCurrentIndex(parseInt(savedProgress));
+    if (id) {
+      setCurrentIndex(parseInt(id));
     }
-  }, []);
+  }, [id]);
 
   // Save progress
   useEffect(() => {
@@ -44,13 +42,17 @@ const Index = () => {
 
   const handlePrevious = () => {
     if (currentIndex > 0) {
-      setCurrentIndex(currentIndex - 1);
+      const newIndex = currentIndex - 1;
+      setCurrentIndex(newIndex);
+      navigate(`/name/${newIndex}`);
     }
   };
 
   const handleNext = () => {
     if (currentIndex < namesOfAllah.length - 1) {
-      setCurrentIndex(currentIndex + 1);
+      const newIndex = currentIndex + 1;
+      setCurrentIndex(newIndex);
+      navigate(`/name/${newIndex}`);
     }
   };
 
@@ -128,6 +130,25 @@ const Index = () => {
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
     >
+      {/* Back Navigation */}
+      <div className="fixed top-6 left-6 z-40 flex gap-2">
+        <Button
+          variant="outline"
+          size="icon"
+          className="h-10 w-10 rounded-full border-primary/30 hover:border-primary hover:bg-primary/10"
+          onClick={() => navigate("/names")}
+        >
+          <List className="h-5 w-5" />
+        </Button>
+        <Button
+          variant="outline"
+          size="icon"
+          className="h-10 w-10 rounded-full border-primary/30 hover:border-primary hover:bg-primary/10"
+          onClick={() => navigate("/")}
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </Button>
+      </div>
 
       {/* Progress Bar */}
       <ProgressBar current={currentIndex + 1} total={namesOfAllah.length} />
