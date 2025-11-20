@@ -3,6 +3,7 @@ import { NameCard } from "@/components/NameCard";
 import { DhikrMode } from "@/components/DhikrMode";
 import { ProgressBar } from "@/components/ProgressBar";
 import { NavigationDots } from "@/components/NavigationDots";
+import { DuaGenerator } from "@/components/DuaGenerator";
 import { namesOfAllah } from "@/data/names";
 import { ChevronLeft, ChevronRight, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -133,13 +134,17 @@ const Index = () => {
       <ProgressBar current={currentIndex + 1} total={namesOfAllah.length} />
 
       {/* Main Content */}
-      <main className="relative z-10 h-screen pt-16">
-        <NameCard
-          name={currentName}
-          isFavorite={favorites.includes(currentName.id)}
-          onToggleFavorite={handleToggleFavorite}
-          onStartDhikr={handleStartDhikr}
-        />
+      <main className="relative z-10 min-h-screen pt-16 pb-20">
+        <div className="container mx-auto px-4 space-y-8">
+          <NameCard
+            name={currentName}
+            isFavorite={favorites.includes(currentName.id)}
+            onToggleFavorite={handleToggleFavorite}
+            onStartDhikr={handleStartDhikr}
+          />
+          
+          <DuaGenerator currentName={currentName.name} />
+        </div>
       </main>
 
       {/* Navigation Buttons */}
