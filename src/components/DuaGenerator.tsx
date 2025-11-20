@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Card } from "@/components/ui/card";
 import { Sparkles, Send, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -10,9 +9,34 @@ interface DuaGeneratorProps {
   currentName: string;
 }
 
+interface ParsedDua {
+  arabic: string;
+  transliteration: string;
+  translation: string;
+}
+
+const parseDuaResponse = (response: string): ParsedDua | null => {
+  try {
+    const arabicMatch = response.match(/\*\*Arabic:\*\*\s*(.+?)(?=\*\*Transliteration:|\n\n|$)/s);
+    const translitMatch = response.match(/\*\*Transliteration:\*\*\s*(.+?)(?=\*\*Translation:|\n\n|$)/s);
+    const translationMatch = response.match(/\*\*Translation:\*\*\s*(.+?)$/s);
+
+    if (arabicMatch && translitMatch && translationMatch) {
+      return {
+        arabic: arabicMatch[1].trim(),
+        transliteration: translitMatch[1].trim(),
+        translation: translationMatch[1].trim()
+      };
+    }
+    return null;
+  } catch {
+    return null;
+  }
+};
+
 export const DuaGenerator = ({ currentName }: DuaGeneratorProps) => {
   const [situation, setSituation] = useState("");
-  const [generatedDua, setGeneratedDua] = useState("");
+  const [generatedDua, setGeneratedDua] = useState<ParsedDua | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
@@ -27,7 +51,7 @@ export const DuaGenerator = ({ currentName }: DuaGeneratorProps) => {
     }
 
     setIsLoading(true);
-    setGeneratedDua("");
+    setGeneratedDua(null);
 
     try {
       const { data, error } = await supabase.functions.invoke('generate-dua', {
@@ -40,11 +64,16 @@ export const DuaGenerator = ({ currentName }: DuaGeneratorProps) => {
         throw new Error(data.error);
       }
 
-      setGeneratedDua(data.dua);
-      toast({
-        title: "Dua generated",
-        description: "May Allah accept your supplication",
-      });
+      const parsed = parseDuaResponse(data.dua);
+      if (parsed) {
+        setGeneratedDua(parsed);
+        toast({
+          title: "Dua generated",
+          description: "May Allah accept your supplication",
+        });
+      } else {
+        throw new Error("Failed to parse dua response");
+      }
     } catch (error: any) {
       console.error('Error generating dua:', error);
       toast({
@@ -58,14 +87,17 @@ export const DuaGenerator = ({ currentName }: DuaGeneratorProps) => {
   };
 
   return (
-    <Card className="p-6 bg-background/50 backdrop-blur-sm border-primary/20">
-      <div className="space-y-4">
+    <div className="w-full max-w-lg space-y-2">
+      {/* DUA Generator Input */}
+      <div className="bg-card rounded-2xl p-4 text-left space-y-3 shadow-sm">
         <div className="flex items-center gap-2">
-          <Sparkles className="h-5 w-5 text-primary" />
-          <h3 className="text-lg font-semibold text-foreground">PERSONAL DUA GENERATOR</h3>
+          <Sparkles className="h-4 w-4 text-primary" />
+          <h3 className="text-xs font-semibold text-primary uppercase tracking-wide">
+            Personal Dua Generator
+          </h3>
         </div>
         
-        <p className="text-sm text-muted-foreground">
+        <p className="text-xs text-muted-foreground">
           Going through something specific? Describe your situation below, and receive a personalized Dua invoking Allah as <span className="font-semibold text-primary">{currentName}</span>.
         </p>
 
@@ -74,12 +106,12 @@ export const DuaGenerator = ({ currentName }: DuaGeneratorProps) => {
             placeholder="e.g., I am feeling anxious about my exam results and need peace..."
             value={situation}
             onChange={(e) => setSituation(e.target.value)}
-            className="min-h-[100px] pr-12 resize-none"
+            className="min-h-[80px] pr-12 resize-none text-sm"
             disabled={isLoading}
           />
           <Button
             size="icon"
-            className="absolute bottom-3 right-3 h-8 w-8"
+            className="absolute bottom-2 right-2 h-9 w-9 rounded-full"
             onClick={handleGenerate}
             disabled={isLoading || !situation.trim()}
           >
@@ -90,15 +122,25 @@ export const DuaGenerator = ({ currentName }: DuaGeneratorProps) => {
             )}
           </Button>
         </div>
-
-        {generatedDua && (
-          <div className="mt-4 p-4 rounded-lg bg-primary/5 border border-primary/20">
-            <div className="whitespace-pre-wrap text-sm text-foreground">
-              {generatedDua}
-            </div>
-          </div>
-        )}
       </div>
-    </Card>
+
+      {/* Generated Dua Display - Matching Invocation Style */}
+      {generatedDua && (
+        <div className="bg-card rounded-2xl p-4 text-left space-y-2 shadow-sm animate-fade-in">
+          <h3 className="text-xs font-semibold text-primary uppercase tracking-wide">
+            Your Personalized Dua
+          </h3>
+          <p className="arabic-text text-xl text-foreground leading-loose text-right">
+            {generatedDua.arabic}
+          </p>
+          <p className="text-xs text-muted-foreground italic">
+            {generatedDua.transliteration}
+          </p>
+          <p className="text-xs text-foreground leading-relaxed">
+            {generatedDua.translation}
+          </p>
+        </div>
+      )}
+    </div>
   );
 };
