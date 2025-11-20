@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { NameCard } from "@/components/NameCard";
 import { DhikrMode } from "@/components/DhikrMode";
 import { ProgressBar } from "@/components/ProgressBar";
 import { NavigationDots } from "@/components/NavigationDots";
@@ -135,15 +134,79 @@ const Index = () => {
 
       {/* Main Content */}
       <main className="relative z-10 min-h-screen pt-16 pb-20">
-        <div className="container mx-auto px-4 space-y-8">
-          <NameCard
-            name={currentName}
-            isFavorite={favorites.includes(currentName.id)}
-            onToggleFavorite={handleToggleFavorite}
-            onStartDhikr={handleStartDhikr}
-          />
-          
-          <DuaGenerator currentName={currentName.name} />
+        <div className="flex flex-col items-center justify-start px-4 animate-slide-in overflow-y-auto">
+          <div className="w-full max-w-lg space-y-2 text-center">
+            {/* Arabic Name Card with Actions */}
+            <div className="bg-card rounded-3xl p-6 shadow-sm">
+              <div className="flex justify-end gap-2 mb-3">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 rounded-full hover:bg-muted transition-all"
+                  onClick={handleToggleFavorite}
+                >
+                  <Heart
+                    className={`h-4 w-4 transition-colors ${
+                      favorites.includes(currentName.id) ? "fill-primary text-primary" : "text-muted-foreground"
+                    }`}
+                  />
+                </Button>
+              </div>
+              
+              <h1 className="arabic-text text-6xl md:text-7xl font-bold text-primary mb-2">
+                {currentName.arabic}
+              </h1>
+            </div>
+
+            {/* English Meaning & Name */}
+            <div>
+              <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">
+                {currentName.name}
+              </p>
+              <h2 className="text-xl md:text-2xl font-semibold text-foreground">
+                {currentName.meaning}
+              </h2>
+            </div>
+
+            {/* Explanation */}
+            <div className="bg-card rounded-2xl p-4 text-left space-y-1 shadow-sm">
+              <h3 className="text-xs font-semibold text-primary uppercase tracking-wide">
+                Explanation
+              </h3>
+              <p className="text-sm text-foreground leading-relaxed">
+                {currentName.explanation}
+              </p>
+            </div>
+
+            {/* Invocation/Dhikr Box */}
+            <div className="bg-card rounded-2xl p-4 text-left space-y-2 shadow-sm">
+              <h3 className="text-xs font-semibold text-primary uppercase tracking-wide">
+                Invocation
+              </h3>
+              <p className="arabic-text text-xl text-foreground leading-loose text-right">
+                {currentName.dhikr.arabic}
+              </p>
+              <p className="text-xs text-muted-foreground italic">
+                {currentName.dhikr.transliteration}
+              </p>
+              <p className="text-xs text-foreground">
+                {currentName.dhikr.translation}
+              </p>
+            </div>
+
+            {/* DUA Generator - Now integrated below invocation */}
+            <DuaGenerator currentName={currentName.name} />
+
+            {/* Start Dhikr Button */}
+            <div className="pt-2">
+              <Button
+                onClick={handleStartDhikr}
+                className="h-12 w-full rounded-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-md font-medium"
+              >
+                Start Dhikr
+              </Button>
+            </div>
+          </div>
         </div>
       </main>
 
