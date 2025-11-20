@@ -1,0 +1,4 @@
+project_id = "zwkogbicmhrvhcycdlpt"
+
+[functions.generate-dua]
+verify_jwt = false
