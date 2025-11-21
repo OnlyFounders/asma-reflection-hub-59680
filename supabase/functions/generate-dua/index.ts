@@ -30,8 +30,11 @@ CRITICAL REQUIREMENTS:
 - A dua must be a direct supplication to Allah (starting with words like "Allahumma", "Rabbana", "Ya Allah", etc.)
 - Prioritize authentic Hadith duas FIRST
 - Include maximum 1-2 Quranic duas (only if they are actual supplications)
-- Examples of valid duas: "Allahumma anta al-'Afuww al-Karim tuhibbu al-'afwa fa'fu anni"
+- PREFER SHORT AND CONCISE duas (2-4 lines maximum in Arabic)
+- AVOID extremely long duas that span many paragraphs
+- Examples of preferred length: "Allahumma Ya Ahadu Ya Samadu Ya Nurun Ya 'Alimu Ya Aliyyu Ya Azimu, Ighfir liya adh-dhunuba allati la yaghfiruha ghayruka"
 - DO NOT include regular Quranic verses that are statements or narratives
+- DO NOT include duas longer than 5-6 lines of Arabic text
 
 Return ONLY a JSON object with this EXACT structure (no markdown, no code blocks):
 {
@@ -45,9 +48,9 @@ Return ONLY a JSON object with this EXACT structure (no markdown, no code blocks
   ]
 }
 
-Provide 3-5 authentic duas. Prioritize Hadith duas, then add 1-2 Quranic duas if available.`;
+Provide 3-5 authentic SHORT duas. Prioritize concise Hadith duas, then add 1-2 short Quranic duas if available.`;
 
-      userPrompt = `Find authentic duas (actual supplications) from Hadith and Quran that use the name "${nameOfAllah}". Prioritize Hadith duas first, then Quranic duas. Return only actual supplications, not regular verses.`;
+      userPrompt = `Find authentic SHORT and CONCISE duas (actual supplications, 2-4 lines maximum) from Hadith and Quran that use the name "${nameOfAllah}". Prioritize short Hadith duas first. Avoid long supplications. Return only brief, practical supplications.`;
 
     } else if (type === 'recommend' && situation) {
       // Recommend best names for the situation
