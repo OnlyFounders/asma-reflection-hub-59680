@@ -55,7 +55,7 @@ export const DuaGenerator = ({ currentName }: DuaGeneratorProps) => {
 
     try {
       const { data, error } = await supabase.functions.invoke('generate-dua', {
-        body: { situation: situation.trim(), name: currentName }
+        body: { situation: situation.trim(), nameOfAllah: currentName }
       });
 
       if (error) throw error;
