@@ -214,10 +214,10 @@ const Index = () => {
               <p className="text-xs text-foreground">
                 {currentName.dhikr.translation}
               </p>
-            </div>
 
-            {/* Famous Invocations from Quran/Hadith */}
-            <FamousInvocations currentName={currentName.name} />
+              {/* Authentic Duas integrated inside invocation box */}
+              <FamousInvocations currentName={currentName.name} />
+            </div>
 
             {/* DUA Generator - Now integrated below invocation */}
             <DuaGenerator currentName={currentName.name} />
