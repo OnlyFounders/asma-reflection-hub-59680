@@ -23,23 +23,31 @@ serve(async (req) => {
 
     if (type === 'famous' && nameOfAllah) {
       // Search for famous invocations from Quran/Hadith using this name
-      systemPrompt = `You are an Islamic scholar with deep knowledge of the Quran, Hadith, and authentic Islamic literature. Find and present famous historical duas (supplications) that use the Name of Allah: "${nameOfAllah}".
+      systemPrompt = `You are an Islamic scholar with deep knowledge of authentic Hadith and the Quran. Find ACTUAL DUAS (supplications/prayers) that use the Name of Allah: "${nameOfAllah}".
+
+CRITICAL REQUIREMENTS:
+- Return ONLY actual duas (supplications/prayers), NOT regular verses that just mention the name
+- A dua must be a direct supplication to Allah (starting with words like "Allahumma", "Rabbana", "Ya Allah", etc.)
+- Prioritize authentic Hadith duas FIRST
+- Include maximum 1-2 Quranic duas (only if they are actual supplications)
+- Examples of valid duas: "Allahumma anta al-'Afuww al-Karim tuhibbu al-'afwa fa'fu anni"
+- DO NOT include regular Quranic verses that are statements or narratives
 
 Return ONLY a JSON object with this EXACT structure (no markdown, no code blocks):
 {
   "invocations": [
     {
-      "source": "Source reference (e.g., 'Surah Al-Hashr 59:23' or 'Tirmidhi 3590')",
-      "arabic": "The original Arabic text with diacritics",
+      "source": "Source reference (e.g., 'Tirmidhi 3590', 'Bukhari 6407', or 'Surah Al-Baqarah 2:201' for Quranic duas)",
+      "arabic": "The original Arabic dua text with diacritics",
       "transliteration": "Romanized transliteration",
       "translation": "English translation"
     }
   ]
 }
 
-Provide 3-5 authentic invocations. Only include invocations that genuinely feature this specific name of Allah.`;
+Provide 3-5 authentic duas. Prioritize Hadith duas, then add 1-2 Quranic duas if available.`;
 
-      userPrompt = `Find famous duas from Quran, Hadith, or authentic Islamic sources that use the name "${nameOfAllah}".`;
+      userPrompt = `Find authentic duas (actual supplications) from Hadith and Quran that use the name "${nameOfAllah}". Prioritize Hadith duas first, then Quranic duas. Return only actual supplications, not regular verses.`;
 
     } else if (type === 'recommend' && situation) {
       // Recommend best names for the situation

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronUp, Loader2, BookOpen } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -20,6 +20,12 @@ export const FamousInvocations = ({ currentName }: FamousInvocationsProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [invocations, setInvocations] = useState<InvocationData[]>([]);
   const { toast } = useToast();
+
+  // Reset invocations when name changes
+  useEffect(() => {
+    setInvocations([]);
+    setIsExpanded(false);
+  }, [currentName]);
 
   const handleFetchInvocations = async () => {
     if (invocations.length > 0) {
@@ -57,7 +63,7 @@ export const FamousInvocations = ({ currentName }: FamousInvocationsProps) => {
   };
 
   return (
-    <div className="bg-card rounded-2xl p-4 shadow-sm">
+    <div className="mt-4 pt-4 border-t border-border">
       <Button
         onClick={handleFetchInvocations}
         variant="ghost"
@@ -70,7 +76,7 @@ export const FamousInvocations = ({ currentName }: FamousInvocationsProps) => {
             <ChevronDown className="h-4 w-4 text-primary" />
           )}
           <span className="text-sm font-semibold text-primary">
-            {isExpanded ? "Hide" : "View"} Famous Historical Duas
+            {isExpanded ? "Hide" : "View"} Authentic Duas
           </span>
         </div>
         {isLoading && <Loader2 className="h-4 w-4 animate-spin text-primary" />}
@@ -88,7 +94,7 @@ export const FamousInvocations = ({ currentName }: FamousInvocationsProps) => {
               <div key={index} className="space-y-2 pb-4 border-b border-border last:border-0">
                 <div className="flex items-start gap-2 mb-2">
                   <BookOpen className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                  <p className="text-xs font-semibold text-primary uppercase tracking-wide">
+                  <p className="text-xs font-semibold text-primary uppercase tracking-wide border border-primary/20 rounded px-2 py-1 inline-block">
                     {inv.source}
                   </p>
                 </div>
