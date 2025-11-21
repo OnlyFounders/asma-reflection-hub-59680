@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { Star, BookOpen, Sunrise, Sunset, Moon, Heart, Compass } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { PersonalizedDuaHome } from "@/components/PersonalizedDuaHome";
 
 interface ResourceCard {
   id: string;
@@ -84,6 +85,11 @@ const Home = () => {
           <p className="text-muted-foreground text-lg">
             Your companion for daily remembrance and spiritual growth
           </p>
+        </div>
+
+        {/* Personalized Dua Generator */}
+        <div className="mb-12">
+          <PersonalizedDuaHome />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">

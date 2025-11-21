@@ -3,6 +3,7 @@ import { DhikrMode } from "@/components/DhikrMode";
 import { ProgressBar } from "@/components/ProgressBar";
 import { NavigationDots } from "@/components/NavigationDots";
 import { DuaGenerator } from "@/components/DuaGenerator";
+import { FamousInvocations } from "@/components/FamousInvocations";
 import { namesOfAllah } from "@/data/names";
 import { ChevronLeft, ChevronRight, Heart, ArrowLeft, List } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -130,8 +131,8 @@ const Index = () => {
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
     >
-      {/* Back Navigation */}
-      <div className="fixed top-6 left-6 z-40 flex gap-2">
+      {/* Back Navigation - Below Progress Bar */}
+      <div className="fixed top-20 left-6 z-40 flex gap-2">
         <Button
           variant="outline"
           size="icon"
@@ -215,6 +216,9 @@ const Index = () => {
               </p>
             </div>
 
+            {/* Famous Invocations from Quran/Hadith */}
+            <FamousInvocations currentName={currentName.name} />
+
             {/* DUA Generator - Now integrated below invocation */}
             <DuaGenerator currentName={currentName.name} />
 
@@ -231,28 +235,28 @@ const Index = () => {
         </div>
       </main>
 
-      {/* Navigation Buttons */}
-      <div className="fixed left-6 top-1/2 -translate-y-1/2 z-40">
+      {/* Navigation Buttons - Minimalistic with transparent background */}
+      <div className="fixed left-4 top-1/2 -translate-y-1/2 z-40">
         <Button
-          variant="outline"
+          variant="ghost"
           size="icon"
-          className="h-12 w-12 rounded-full border-primary/30 hover:border-primary hover:bg-primary/10 disabled:opacity-30"
+          className="h-10 w-10 rounded-full bg-transparent hover:bg-background/60 backdrop-blur-sm disabled:opacity-20 transition-all"
           onClick={handlePrevious}
           disabled={currentIndex === 0}
         >
-          <ChevronLeft className="h-6 w-6" />
+          <ChevronLeft className="h-6 w-6 text-foreground/70" />
         </Button>
       </div>
 
-      <div className="fixed right-6 top-1/2 -translate-y-1/2 z-40">
+      <div className="fixed right-4 top-1/2 -translate-y-1/2 z-40">
         <Button
-          variant="outline"
+          variant="ghost"
           size="icon"
-          className="h-12 w-12 rounded-full border-primary/30 hover:border-primary hover:bg-primary/10 disabled:opacity-30"
+          className="h-10 w-10 rounded-full bg-transparent hover:bg-background/60 backdrop-blur-sm disabled:opacity-20 transition-all"
           onClick={handleNext}
           disabled={currentIndex === namesOfAllah.length - 1}
         >
-          <ChevronRight className="h-6 w-6" />
+          <ChevronRight className="h-6 w-6 text-foreground/70" />
         </Button>
       </div>
 

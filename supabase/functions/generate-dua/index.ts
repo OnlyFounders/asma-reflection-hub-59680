@@ -11,14 +11,106 @@ serve(async (req) => {
   }
 
   try {
-    const { situation, name } = await req.json();
+    const { situation, nameOfAllah, type } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
 
     if (!LOVABLE_API_KEY) {
       throw new Error('LOVABLE_API_KEY is not configured');
     }
 
-    console.log('Generating dua for situation:', situation);
+    let systemPrompt = '';
+    let userPrompt = '';
+
+    if (type === 'famous' && nameOfAllah) {
+      // Search for famous invocations from Quran/Hadith using this name
+      systemPrompt = `You are an Islamic scholar with deep knowledge of the Quran, Hadith, and authentic Islamic literature. Find and present famous historical duas (supplications) that use the Name of Allah: "${nameOfAllah}".
+
+Return ONLY a JSON object with this EXACT structure (no markdown, no code blocks):
+{
+  "invocations": [
+    {
+      "source": "Source reference (e.g., 'Surah Al-Hashr 59:23' or 'Tirmidhi 3590')",
+      "arabic": "The original Arabic text with diacritics",
+      "transliteration": "Romanized transliteration",
+      "translation": "English translation"
+    }
+  ]
+}
+
+Provide 3-5 authentic invocations. Only include invocations that genuinely feature this specific name of Allah.`;
+
+      userPrompt = `Find famous duas from Quran, Hadith, or authentic Islamic sources that use the name "${nameOfAllah}".`;
+
+    } else if (type === 'recommend' && situation) {
+      // Recommend best names for the situation
+      systemPrompt = `You are an Islamic scholar specialized in the 99 Names of Allah. Analyze the situation and recommend the most appropriate Names of Allah to call upon.
+
+Return ONLY a JSON object with this EXACT structure (no markdown, no code blocks):
+{
+  "names": [
+    {
+      "name": "Name of Allah in English (e.g., 'Ar-Rahman')",
+      "reason": "Brief explanation of why this name is suitable for this situation"
+    }
+  ]
+}
+
+Provide 5-8 most relevant names.`;
+
+      userPrompt = `Recommend the best Names of Allah to invoke for this situation: "${situation}"`;
+
+    } else if (type === 'personalized' && situation) {
+      // Generate personalized dua
+      systemPrompt = `You are an Islamic scholar specialized in creating authentic Arabic duas. Generate a personalized dua for the given situation using the most appropriate Names of Allah.
+
+The dua should:
+1. Be in classical Arabic following Islamic prayer conventions
+2. Use multiple appropriate Names of Allah naturally
+3. Be authentic to Islamic tradition
+4. Follow traditional dua structure
+
+Return ONLY a JSON object with this EXACT structure (no markdown, no code blocks):
+{
+  "dua": {
+    "arabic": "The complete dua in Arabic with proper diacritics",
+    "transliteration": "Romanized transliteration",
+    "translation": "English translation",
+    "namesUsed": ["List of Names used in the dua"]
+  }
+}`;
+
+      userPrompt = `Create a personalized dua for: "${situation}"`;
+
+    } else if (nameOfAllah && situation) {
+      // Legacy support for the original personalized dua generator
+      systemPrompt = `You are an Islamic scholar specializing in creating personalized duas (supplications) that invoke Allah by His Beautiful Names. 
+
+Your task is to create authentic, heartfelt duas in Arabic (with transliteration) that:
+1. Use the specific Name of Allah provided (${nameOfAllah})
+2. Address the user's specific situation
+3. Follow proper Islamic etiquette for making dua
+4. Are concise yet meaningful (2-3 sentences maximum)
+5. Use proper Arabic grammar and Islamic terminology
+
+Format your response as:
+**Arabic:** [Arabic text]
+**Transliteration:** [Romanized Arabic]
+**Translation:** [English translation]
+
+Keep the dua sincere, appropriate, and rooted in Islamic tradition.`;
+
+      userPrompt = `Create a personalized dua for someone who is: ${situation}\n\nUse the name of Allah: ${nameOfAllah}`;
+    } else {
+      return new Response(
+        JSON.stringify({ error: 'Invalid request parameters' }),
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+    }
+
+    console.log('Generating dua with type:', type);
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -31,25 +123,11 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: `You are an Islamic scholar specializing in creating personalized duas (supplications) that invoke Allah by His Beautiful Names. 
-
-Your task is to create authentic, heartfelt duas in Arabic (with transliteration) that:
-1. Use the specific Name of Allah provided (${name})
-2. Address the user's specific situation
-3. Follow proper Islamic etiquette for making dua
-4. Are concise yet meaningful (2-3 sentences maximum)
-5. Use proper Arabic grammar and Islamic terminology
-
-Format your response as:
-**Arabic:** [Arabic text]
-**Transliteration:** [Romanized Arabic]
-**Translation:** [English translation]
-
-Keep the dua sincere, appropriate, and rooted in Islamic tradition.`
+            content: systemPrompt
           },
           {
             role: 'user',
-            content: `Create a personalized dua for someone who is: ${situation}\n\nUse the name of Allah: ${name}`
+            content: userPrompt
           }
         ],
       }),
@@ -74,12 +152,30 @@ Keep the dua sincere, appropriate, and rooted in Islamic tradition.`
     }
 
     const data = await response.json();
-    const generatedDua = data.choices[0].message.content;
+    let generatedContent = data.choices[0].message.content;
 
+    // Try to parse as JSON for structured responses
+    if (type === 'famous' || type === 'recommend' || type === 'personalized') {
+      try {
+        // Remove markdown code blocks if present
+        generatedContent = generatedContent.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+        const parsedContent = JSON.parse(generatedContent);
+        console.log('Successfully generated structured response');
+        return new Response(
+          JSON.stringify(parsedContent),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      } catch (parseError) {
+        console.error('Failed to parse JSON response:', parseError);
+        console.error('Raw content:', generatedContent);
+        // Fall through to return as plain text
+      }
+    }
+
+    // Return as plain text for legacy support
     console.log('Successfully generated dua');
-
     return new Response(
-      JSON.stringify({ dua: generatedDua }),
+      JSON.stringify({ dua: generatedContent }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error) {
