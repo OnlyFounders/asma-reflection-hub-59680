@@ -67,6 +67,9 @@ const NamesList = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"
+              autoComplete="off"
+              autoCorrect="off"
+              spellCheck={false}
             />
           </div>
         </div>
